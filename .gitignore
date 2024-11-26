@@ -1,0 +1,5 @@
+*.csv
+shift_by_one.py
+app.py
+validador.py
+.env
