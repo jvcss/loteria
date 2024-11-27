@@ -3,8 +3,6 @@ import pandas as pd
 import plotly.express as px
 import locale
 from babel.numbers import parse_decimal
-import time
-import streamlit.components.v1 as components
 
 # Definir o local para formato brasileiro
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
