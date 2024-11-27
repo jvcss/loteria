@@ -83,11 +83,12 @@ def simulate_prizes_with_generated(official_df, generated_df):
         )
 
         # Calcular o prêmio com base nos acertos
-        official_df['Prêmio'] = official_df['Acertos'].apply(
-            lambda x: 
-            parse_brazilian_currency(official_df['Rateio 6 acertos']) if x == 6 else
-            parse_brazilian_currency(official_df['Rateio 5 acertos']) if x == 5 else
-            parse_brazilian_currency(official_df['Rateio 4 acertos']) if x == 4 else 0.0
+        official_df['Prêmio'] = official_df.apply(
+            lambda row: 
+            parse_brazilian_currency(row['Rateio 6 acertos']) if row['Acertos'] == 6 else
+            parse_brazilian_currency(row['Rateio 5 acertos']) if row['Acertos'] == 5 else
+            parse_brazilian_currency(row['Rateio 4 acertos']) if row['Acertos'] == 4 else 0.0,
+            axis=1
         )
 
         # Obter o total de prêmios ganhos para esta combinação gerada
@@ -140,12 +141,12 @@ def main():
         st.header("Resultados Gerados pela IA")
         st.write(generated_df.head())
 
-        
-        
+        # ! Adicionar na função main para exibir os resultados
+        st.subheader("Potencial de Prêmios com Combinações Geradas pela IA")
+        prizes_df = simulate_prizes_with_generated(official_df, generated_df)
+        st.write("Prêmios Potenciais para Combinações Geradas:")
+        st.write(prizes_df)
 
-
-
-        
 
         # Comparação de acertos
         st.subheader("Desempenho das Combinações Geradas")
