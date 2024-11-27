@@ -3,9 +3,30 @@ import pandas as pd
 import plotly.express as px
 import locale
 from babel.numbers import parse_decimal
+import time
+import streamlit.components.v1 as components
 
 # Definir o local para formato brasileiro
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
+
+def show_checkout():
+    """
+    Exibe a interface do Checkout com as opções de compra.
+    """
+    st.title("Adquira a Lista Completa")
+    st.write("""
+    ### Pacotes Disponíveis:
+    - **Pacote Completo**: R$ 199,99 - Todas as combinações geradas.
+    - **Pacote Filtro**: R$ 99,99 - Top 100 combinações com maior precisão.
+    """)
+    
+    # Botão de pagamento (redirecionamento simulado)
+    if st.button("Comprar Agora"):
+        stripe_checkout_url = "https://checkout.stripe.com/pay/cs_test_YOUR_CHECKOUT_SESSION_ID"
+        st.write("Redirecionando para o pagamento...")
+        st.markdown(f"[Clique aqui se não for redirecionado automaticamente.]({stripe_checkout_url})")
+
 
 def parse_brazilian_currency(value):
     """
@@ -123,13 +144,27 @@ def plot_prizes(prizes_df):
 # Função principal
 def main():
     st.title("Loteria Inteligente - Mega-Sena e Lotofácil")
+    # Placeholder para o popup
+    popup_placeholder = st.empty()
+    # Temporizador para exibir o popup após 17 segundos
+    if "popup_displayed" not in st.session_state:
+        st.session_state.popup_displayed = False  # Controle de exibição do popup
+        st.session_state.start_time = time.time()  # Marca o início da aplicação
+    # Verifica se já passou o tempo para exibir o popup
+    if not st.session_state.popup_displayed:
+        elapsed_time = time.time() - st.session_state.start_time
+        if elapsed_time > 17:  # Após 17 segundos
+            with popup_placeholder.container():
+                st.markdown("### 🎉 Oferta Especial!")
+                show_checkout()
+            st.session_state.popup_displayed = True  # Marca como exibido
+
+
     st.sidebar.title("Configurações")
-    
     # Carregamento dos arquivos CSV
     st.sidebar.subheader("Upload de Dados")
     official_file = st.sidebar.file_uploader("Resultados Oficiais (CSV)", type="csv")
     generated_file = st.sidebar.file_uploader("Resultados Gerados pela IA (CSV)", type="csv")
-    
     # Se arquivos forem carregados
     if official_file and generated_file:
         official_df = pd.read_csv(official_file)
@@ -178,14 +213,6 @@ def main():
     else:
         st.warning("Por favor, carregue os arquivos CSV para continuar.")
 
-    # Checkout Simples
-    st.sidebar.title("Adquira a Lista Completa")
-    st.sidebar.subheader("Pacotes Disponíveis")
-    st.sidebar.write("""
-    - **Pacote Completo**: R$ 199,99 - Todas as combinações geradas.
-    - **Pacote Filtro**: R$ 99,99 - Top 100 combinações com maior precisão.
-    """)
-    st.sidebar.button("Comprar Agora")
 
 if __name__ == "__main__":
     main()
