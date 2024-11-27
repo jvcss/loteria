@@ -144,21 +144,6 @@ def plot_prizes(prizes_df):
 # Função principal
 def main():
     st.title("Loteria Inteligente - Mega-Sena e Lotofácil")
-    # Placeholder para o popup
-    popup_placeholder = st.empty()
-    # Temporizador para exibir o popup após 17 segundos
-    if "popup_displayed" not in st.session_state:
-        st.session_state.popup_displayed = False  # Controle de exibição do popup
-        st.session_state.start_time = time.time()  # Marca o início da aplicação
-    # Verifica se já passou o tempo para exibir o popup
-    if not st.session_state.popup_displayed:
-        elapsed_time = time.time() - st.session_state.start_time
-        if elapsed_time > 17:  # Após 17 segundos
-            with popup_placeholder.container():
-                st.markdown("### 🎉 Oferta Especial!")
-                show_checkout()
-            st.session_state.popup_displayed = True  # Marca como exibido
-
 
     st.sidebar.title("Configurações")
     # Carregamento dos arquivos CSV
