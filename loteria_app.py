@@ -6,6 +6,7 @@ from babel.numbers import parse_decimal
 
 # Definir o local para formato brasileiro
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
 def parse_brazilian_currency(value):
     """
     Converte um valor no formato brasileiro de moeda (e.g., "R$15.591.365,07") para float.
@@ -59,18 +60,6 @@ def calculate_hits(official_df, generated_df):
 
     return results_df
 
-
-# Função para calcular evolução da arrecadação
-def plot_evolution(official_df):
-    fig = px.line(
-        official_df,
-        x='Data do Sorteio',
-        y='Arrecadação Total',
-        title='Evolução da Arrecadação Total',
-        labels={'Data do Sorteio': 'Data', 'Arrecadação Total': 'Arrecadação (R$)'}
-    )
-    return fig
-
 # Função para simular prêmios com os números gerados pela IA
 def simulate_prizes_with_generated(official_df, generated_df):
     """
@@ -115,6 +104,21 @@ def simulate_prizes_with_generated(official_df, generated_df):
 
     return results_df
 
+# Atualização do gráfico de prêmios
+def plot_prizes(prizes_df):
+    """Plota um gráfico com a distribuição de prêmios calculados."""
+    prizes_summary = prizes_df['Prêmio Total'].value_counts().reset_index()
+    prizes_summary.columns = ['Prêmio Total (R$)', 'Frequência']
+    
+    fig = px.bar(
+        prizes_summary,
+        x='Prêmio Total (R$)',
+        y='Frequência',
+        title='Distribuição de Potenciais Prêmios com Combinações Geradas',
+        labels={'Prêmio Total (R$)': 'Prêmio (R$)', 'Frequência': 'Quantidade'}
+    )
+    return fig
+
 # Função principal
 def main():
     st.title("Loteria Inteligente - Mega-Sena e Lotofácil")
@@ -136,29 +140,17 @@ def main():
         st.header("Resultados Gerados pela IA")
         st.write(generated_df.head())
 
-        # Adicionar na função main para exibir os resultados
-        st.subheader("Potencial de Prêmios com Combinações Geradas pela IA")
-        prizes_df = simulate_prizes_with_generated(official_df, generated_df)
-        # Mostrar os dados de prêmios calculados
-        st.write("Prêmios Potenciais para Combinações Geradas:")
-        st.write(prizes_df)
-        # Gráfico de distribuição de prêmios
-        prizes_summary = prizes_df['Prêmio Total'].value_counts().reset_index()
-        prizes_summary.columns = ['Prêmio Total (R$)', 'Frequência']
-        st.plotly_chart(
-            px.bar(
-                prizes_summary,
-                x='Prêmio Total (R$)',
-                y='Frequência',
-                title='Distribuição de Potenciais Prêmios com Combinações Geradas',
-                labels={'Prêmio Total (R$)': 'Prêmio (R$)', 'Frequência': 'Quantidade'}
-            )
-        )
+        
+        
+
+
+
+        
 
         # Comparação de acertos
         st.subheader("Desempenho das Combinações Geradas")
         results_df = calculate_hits(official_df, generated_df)
-        #st.write(results_df[['Números Gerados', 'Acertos']])
+        st.write(results_df[['Acertos']])
         # Gráfico de distribuição de acertos
         accuracy_summary = results_df['Acertos'].value_counts().reset_index()
         accuracy_summary.columns = ['Número de Acertos', 'Frequência']
@@ -172,17 +164,13 @@ def main():
             )
         )
 
-        # Gráfico de evolução de arrecadação
-        st.subheader("Evolução da Arrecadação")
-        st.plotly_chart(plot_evolution(official_df))
-
         # Simulação de prêmios
         st.subheader("Simulador de Prêmios")
         user_numbers_input = st.text_input("Insira sua combinação (separados por vírgula):")
         
         if user_numbers_input:
             user_numbers = list(map(int, user_numbers_input.split(',')))
-            simulation_df = simulate_prizes(official_df, user_numbers)
+            simulation_df = simulate_prizes_with_generated(official_df, user_numbers)
             st.write("Resultados da Simulação:")
             st.write(simulation_df)
 
