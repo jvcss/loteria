@@ -1,6 +1,25 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import locale
+from babel.numbers import parse_decimal
+
+# Definir o local para formato brasileiro
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+def parse_brazilian_currency(value):
+    """
+    Converte um valor no formato brasileiro de moeda (e.g., "R$15.591.365,07") para float.
+    
+    Args:
+        value (str): Valor monetário em formato brasileiro.
+
+    Returns:
+        float: Valor convertido em formato numérico.
+    """
+    try:
+        return float(parse_decimal(value.replace("R$", "").strip(), locale='pt_BR'))
+    except (ValueError, TypeError):
+        return 0.0
 
 def calculate_hits(official_df, generated_df):
     """Calcula o número de acertos entre os números gerados pela IA e os resultados oficiais.
@@ -52,19 +71,49 @@ def plot_evolution(official_df):
     )
     return fig
 
-# Função para simular prêmios
-def simulate_prizes(official_df, user_numbers):
-    user_set = set(user_numbers)
-    official_df['Números Sorteados'] = official_df[[f'Bola{i}' for i in range(1, 7)]].apply(lambda x: list(x), axis=1)
+# Função para simular prêmios com os números gerados pela IA
+def simulate_prizes_with_generated(official_df, generated_df):
+    """
+    Calcula prêmios potenciais ao jogar combinações geradas pela IA.
 
-    official_df['Acertos'] = official_df['Números Sorteados'].apply(lambda x: len(user_set.intersection(set(x))))
+    Args:
+        official_df (pd.DataFrame): DataFrame com os resultados oficiais.
+        generated_df (pd.DataFrame): DataFrame com as combinações geradas pela IA.
 
-    official_df['Prêmio'] = official_df['Acertos'].apply(lambda x: 
-        official_df['Rateio 6 acertos'] if x == 6 else
-        official_df['Rateio 5 acertos'] if x == 5 else
-        official_df['Rateio 4 acertos'] if x == 4 else 0
+    Returns:
+        pd.DataFrame: DataFrame com acertos, prêmios e outras estatísticas por combinação gerada.
+    """
+    results = []
+
+    for _, generated_row in generated_df.iterrows():
+        generated_set = set(generated_row.values)
+
+        # Calcular acertos para cada sorteio oficial
+        official_df['Acertos'] = official_df[[f'Bola{i}' for i in range(1, 7)]].apply(
+            lambda x: len(generated_set.intersection(set(x))), axis=1
+        )
+
+        # Calcular o prêmio com base nos acertos
+        official_df['Prêmio'] = official_df['Acertos'].apply(
+            lambda x: 
+            parse_brazilian_currency(official_df['Rateio 6 acertos']) if x == 6 else
+            parse_brazilian_currency(official_df['Rateio 5 acertos']) if x == 5 else
+            parse_brazilian_currency(official_df['Rateio 4 acertos']) if x == 4 else 0.0
+        )
+
+        # Obter o total de prêmios ganhos para esta combinação gerada
+        total_prize = official_df['Prêmio'].sum()
+
+        # Armazenar a combinação gerada e o prêmio total
+        results.append([*generated_row.values, total_prize])
+
+    # Criar DataFrame com os resultados
+    results_df = pd.DataFrame(
+        results,
+        columns=['Bola1', 'Bola2', 'Bola3', 'Bola4', 'Bola5', 'Bola6', 'Prêmio Total']
     )
-    return official_df[['Data do Sorteio', 'Números Sorteados', 'Acertos', 'Prêmio']]
+
+    return results_df
 
 # Função principal
 def main():
@@ -87,11 +136,29 @@ def main():
         st.header("Resultados Gerados pela IA")
         st.write(generated_df.head())
 
+        # Adicionar na função main para exibir os resultados
+        st.subheader("Potencial de Prêmios com Combinações Geradas pela IA")
+        prizes_df = simulate_prizes_with_generated(official_df, generated_df)
+        # Mostrar os dados de prêmios calculados
+        st.write("Prêmios Potenciais para Combinações Geradas:")
+        st.write(prizes_df)
+        # Gráfico de distribuição de prêmios
+        prizes_summary = prizes_df['Prêmio Total'].value_counts().reset_index()
+        prizes_summary.columns = ['Prêmio Total (R$)', 'Frequência']
+        st.plotly_chart(
+            px.bar(
+                prizes_summary,
+                x='Prêmio Total (R$)',
+                y='Frequência',
+                title='Distribuição de Potenciais Prêmios com Combinações Geradas',
+                labels={'Prêmio Total (R$)': 'Prêmio (R$)', 'Frequência': 'Quantidade'}
+            )
+        )
+
         # Comparação de acertos
         st.subheader("Desempenho das Combinações Geradas")
         results_df = calculate_hits(official_df, generated_df)
         #st.write(results_df[['Números Gerados', 'Acertos']])
-
         # Gráfico de distribuição de acertos
         accuracy_summary = results_df['Acertos'].value_counts().reset_index()
         accuracy_summary.columns = ['Número de Acertos', 'Frequência']
