@@ -1,7 +1,11 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-
+prize_data = {
+    "premio_4": 961.50,  # Valor do prêmio para 4 acertos
+    "premio_5": 41501.26,  # Valor do prêmio para 5 acertos
+    "premio_6": 12561383.62  # Valor do prêmio para 6 acertos
+}
 # Configuração de cache para melhorar a performance
 @st.cache_data
 def load_data(file):
@@ -15,22 +19,58 @@ def validate_data(official_df, generated_df):
     if generated_df.shape[1] != 6:
         raise ValueError("Arquivo gerado pela IA deve conter exatamente 6 colunas.")
 
-def calculate_hits(official_df, generated_df):
-    """Calcula o desempenho das combinações geradas pela IA."""
-    results = []
+def calculate_hits_with_prizes(official_df, generated_df, prize_data):
+    """Calcula os acertos e os prêmios potenciais."""
+    result_list = []
     for combo in generated_df.values:
         combo_set = set(combo)
         official_df["Acertos"] = official_df[[f"Bola{i}" for i in range(1, 7)]].apply(
             lambda x: len(combo_set.intersection(set(x))), axis=1
         )
-        total_hits = official_df["Acertos"].sum()
-        results.append([*combo, total_hits])
-    return pd.DataFrame(results, columns=["Bola1", "Bola2", "Bola3", "Bola4", "Bola5", "Bola6", "Acertos"])
+
+        # Categorizar acertos
+        official_df["Acertos4"] = (official_df["Acertos"] == 4).astype(int)
+        official_df["Acertos5"] = (official_df["Acertos"] == 5).astype(int)
+        official_df["Acertos6"] = (official_df["Acertos"] == 6).astype(int)
+
+        # Calcular o prêmio total
+        total_prize = sum(
+            official_df[col].sum() * prize
+            for col, prize in zip(
+                ["Acertos4", "Acertos5", "Acertos6"],
+                [prize_data["premio_4"], prize_data["premio_5"], prize_data["premio_6"]],
+            )
+        )
+
+        # Adicionar resultados
+        result_list.append(
+            list(combo) + [
+                official_df["Acertos4"].sum(),
+                official_df["Acertos5"].sum(),
+                official_df["Acertos6"].sum(),
+                total_prize,
+            ]
+        )
+
+    return pd.DataFrame(
+        result_list,
+        columns=["Bola1", "Bola2", "Bola3", "Bola4", "Bola5", "Bola6", "Acertos4", "Acertos5", "Acertos6", "Prêmio Total"]
+    )
 
 def plot_accuracy_distribution(results_df):
     """Plota a distribuição dos acertos das combinações geradas."""
+    # Consolidar os acertos em uma única coluna
+    results_df["Acertos"] = (
+        results_df["Acertos4"] * 4 + 
+        results_df["Acertos5"] * 5 + 
+        results_df["Acertos6"] * 6
+    )
+    
+    # Criar a contagem de frequência
     accuracy_summary = results_df["Acertos"].value_counts().reset_index()
     accuracy_summary.columns = ["Número de Acertos", "Frequência"]
+    
+    # Criar o gráfico
     return px.bar(
         accuracy_summary,
         x="Número de Acertos",
@@ -38,6 +78,16 @@ def plot_accuracy_distribution(results_df):
         title="Distribuição de Acertos das Combinações Geradas",
         labels={"Número de Acertos": "Nº de Acertos", "Frequência": "Quantidade"},
     )
+
+def display_summary(results_df):
+    """Exibe um resumo dos prêmios e acertos."""
+    total_prizes = results_df["Prêmio Total"].sum()
+    total_hits = results_df[["Acertos4", "Acertos5", "Acertos6"]].sum()
+
+    st.metric("Prêmio Total Acumulado", f"R${total_prizes:,.2f}")
+    st.metric("Total de Quadras", total_hits["Acertos4"])
+    st.metric("Total de Quinas", total_hits["Acertos5"])
+    st.metric("Total de Senas", total_hits["Acertos6"])
 
 def main():
     st.title("Análise de Performance de IA em Loterias")
@@ -69,7 +119,8 @@ def main():
 
         # Cálculo de acertos
         st.subheader("Análise de Performance")
-        results_df = calculate_hits(official_df, generated_df)
+        # Cálculo de acertos e prêmios
+        results_df = calculate_hits_with_prizes(official_df, generated_df, prize_data)
         st.write("Resumo das combinações geradas e seus acertos:")
         st.write(results_df)
 
