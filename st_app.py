@@ -44,7 +44,10 @@ def main():
     st.sidebar.title("Configurações")
 
     st.sidebar.subheader("Upload de Dados")
+    # ! vamos preencher essa variavel com o MegaSena.csv que temos na raiz do servidor
     official_file = st.sidebar.file_uploader("Resultados Oficiais (CSV)", type="csv")
+
+    # ! vamos preencher essa variavel com o resultado_mega.csv que temos na raiz do servidor
     generated_file = st.sidebar.file_uploader("Resultados Gerados pela IA (CSV)", type="csv")
 
     if official_file and generated_file:
