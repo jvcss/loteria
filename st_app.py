@@ -91,7 +91,7 @@ def display_summary(results_df):
 
 def main():
     st.title("Análise de Performance de IA em Loterias")
-    st.sidebar.title("Configurações")
+    st.sidebar.title("Dados da Loteria")
 
     st.sidebar.subheader("Upload de Dados")
     # ! vamos preencher essa variavel com o MegaSena.csv que temos na raiz do servidor
