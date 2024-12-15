@@ -1,4 +1,2 @@
 *.csv
-shift_by_one.py
-validador.py
 .env
