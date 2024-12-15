@@ -24,7 +24,7 @@ predictions = model.predict(evaluation_data)
 # Filtra e salva os resultados em um arquivo
 with open("resultado.csv", "w") as file:
     for prediction in predictions:
-        if prediction not in training_data_a and prediction:
+        if prediction not in training_data_a:
             file.write(f"{prediction}\n")
 
 # Exibe um valor aleatório das predições
