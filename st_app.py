@@ -84,10 +84,12 @@ def display_summary(results_df):
     total_prizes = results_df["Prêmio Total"].sum()
     total_hits = results_df[["Acertos4", "Acertos5", "Acertos6"]].sum()
 
+    col1, col2, col3, col4 = st.columns(4)
     st.metric("Prêmio Total Acumulado", f"R${total_prizes:,.2f}")
-    st.metric("Total de Quadras", total_hits["Acertos4"])
-    st.metric("Total de Quinas", total_hits["Acertos5"])
-    st.metric("Total de Senas", total_hits["Acertos6"])
+    col1.metric("Prêmio Total Acumulado", f"R${total_prizes:,.2f}")
+    col2.metric("Total de Quadras", total_hits["Acertos4"])
+    col3.metric("Total de Quinas", total_hits["Acertos5"])
+    col4.metric("Total de Senas", total_hits["Acertos6"])
 
 def main():
     st.title("Análise de Performance de IA em Loterias")
@@ -123,6 +125,7 @@ def main():
         results_df = calculate_hits_with_prizes(official_df, generated_df, prize_data)
         st.write("Resumo das combinações geradas e seus acertos:")
         st.write(results_df)
+        display_summary(results_df)
 
         # Plotar distribuição de acertos
         st.plotly_chart(plot_accuracy_distribution(results_df))

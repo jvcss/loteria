@@ -92,16 +92,23 @@ def display_summary(results_df):
     total_prizes = results_df["Prêmio Total"].sum()
     total_hits = results_df[["Acertos4", "Acertos5", "Acertos6"]].sum()
 
+    col1, col2, col3, col4 = st.columns(4)
     st.metric("Prêmio Total Acumulado", f"R${total_prizes:,.2f}")
-    st.metric("Total de Quadras", total_hits["Acertos4"])
-    st.metric("Total de Quinas", total_hits["Acertos5"])
-    st.metric("Total de Senas", total_hits["Acertos6"])
+    col1.metric("Prêmio Total Acumulado", f"R${total_prizes:,.2f}")
+    col2.metric("Total de Quadras", total_hits["Acertos4"])
+    col3.metric("Total de Quinas", total_hits["Acertos5"])
+    col4.metric("Total de Senas", total_hits["Acertos6"])
 
 def main():
     st.title("Análise de Performance de IA em Loterias")
     st.sidebar.title("Dados da Loteria")
 
     st.sidebar.subheader("Upload de Dados")
+     # ! vamos preencher essa variavel com o MegaSena.csv que temos na raiz do servidor
+    official_file = st.sidebar.file_uploader("Resultados Oficiais (CSV)", type="csv")
+
+    # ! vamos preencher essa variavel com o resultado_mega.csv que temos na raiz do servidor
+    generated_file = st.sidebar.file_uploader("Resultados Gerados pela IA (CSV)", type="csv")
     
     # Caminho dos arquivos locais
     official_file_path = "Mega-Sena.csv"
@@ -122,14 +129,39 @@ def main():
             validate_data(official_df, generated_df)
         except ValueError as e:
             st.error(f"Erro nos dados: {e}")
-            return
 
-        # Exibe os dados carregados
+
+        # Cálculo de acertos
+        st.subheader("Análise de Performance")
+        # Cálculo de acertos e prêmios
+        results_df = calculate_hits_with_prizes(official_df, generated_df, prize_data)
+        st.write("Resumo das combinações geradas e seus acertos:")
+        display_summary(results_df)
+
+        # Plotar distribuição de acertos
+        st.plotly_chart(plot_accuracy_distribution(results_df))
+
+        st.write(results_df)
+        # Informar insights adicionais
+        st.info(
+            "A análise acima demonstra como as combinações geradas pela IA se comparam com os resultados oficiais."
+        )
+
+                # Exibe os dados carregados
         st.header("Dados Carregados")
         st.subheader("Resultados Oficiais")
         st.write(official_df.head())  # Exibe as primeiras linhas do arquivo oficial
         st.subheader("Resultados Gerados pela IA")
         st.write(generated_df.head())  # Exibe as primeiras linhas do arquivo gerado pela IA
+        
+
 
 if __name__ == "__main__":
+    # Configure the page
+    st.set_page_config(
+        page_title="I.A da Loteria",
+        page_icon="📊",
+        layout="wide",
+        initial_sidebar_state="collapsed"  # Options: 'expanded', 'collapsed', 'auto'
+    )
     main()
