@@ -95,28 +95,52 @@ List<Map<String, dynamic>> calculateEachTotalPrize(
   return prizes;
 }
 
-List<List<Map<String, dynamic>>> chartActivity() {
-  // Dados fictícios de resultados oficiais
-  List<Map<String, dynamic>> officialResults = [
-    {
-      'Date': '2024-12-01',
-      'Bola1': 1,
-      'Bola2': 2,
-      'Bola3': 3,
-      'Bola4': 4,
-      'Bola5': 5,
-      'Bola6': 6
-    },
-    {
-      'Date': '2024-12-02',
-      'Bola1': 7,
-      'Bola2': 8,
-      'Bola3': 9,
-      'Bola4': 10,
-      'Bola5': 11,
-      'Bola6': 12
-    },
-  ];
+// Função para buscar dados do Google Sheets
+Future<List<Map<String, dynamic>>> fetchSheetData(String sheetUrl) async {
+  try {
+    // Faz o request para a URL pública do CSV
+    final response = await http.get(Uri.parse(sheetUrl));
+
+    if (response.statusCode == 200) {
+      // Converte o conteúdo CSV em uma lista de mapas
+      final csvData = const CsvToListConverter().convert(response.body);
+
+      // Assumindo que a primeira linha contém os cabeçalhos
+      final headers = csvData.first.cast<String>();
+      final rows = csvData.skip(1);
+
+      // Converte as linhas em um formato de lista de mapas
+      return rows.map((row) {
+        return Map<String, dynamic>.fromIterables(
+          headers,
+          row,
+        );
+      }).toList();
+    } else {
+      throw Exception('Erro ao acessar a planilha: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Erro ao buscar dados do Google Sheets: $e');
+  }
+}
+
+Future<List<Map<String, dynamic>>> oficialResults() async {
+  const String sheetUrl =
+      'https://docs.google.com/spreadsheets/d/1YW0Va7hO00TVgoE_i9Yqj3N5Ex3kl1ZHeZJB_3Xsmk4/export?format=csv';
+  // Busca e processa os dados
+  List<Map<String, dynamic>> sheetData = await fetchSheetData(sheetUrl);
+  List<Map<String, dynamic>> officialResults = sheetData.map((row) {
+    return {
+      'Date': row['Date'],
+      'Bola1': int.parse(row['Bola1']),
+      'Bola2': int.parse(row['Bola2']),
+      'Bola3': int.parse(row['Bola3']),
+      'Bola4': int.parse(row['Bola4']),
+      'Bola5': int.parse(row['Bola5']),
+      'Bola6': int.parse(row['Bola6']),
+    };
+  }).toList();
+  // Dados de resultados oficiais
 
   // Dados fictícios de resultados gerados
   List<Map<String, dynamic>> generatedResults = [
@@ -141,5 +165,6 @@ List<List<Map<String, dynamic>>> chartActivity() {
   //   // print(freq);
   // }
 
-  return [officialResults, generatedResults, hitsWithPrizes, frequency];
+  return officialResults; // [officialResults, generatedResults, hitsWithPrizes, frequency];
 }
+
