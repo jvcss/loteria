@@ -1,12 +1,18 @@
 import csv
 from collections import Counter
 import os
+from colorama import Fore, Style, init
+# Inicializa o colorama para suportar cores no Windows
+init(autoreset=True)
+# Para cores no terminal
+class Color:
+    GREEN = '\033[92m'
+    RESET = '\033[0m'
 
 def read_csv(file_path):
     with open(file_path, newline='') as csvfile:
         reader = csv.reader(csvfile)
-        # Ignora o cabeçalho
-        next(reader)
+        next(reader)  # Ignora o cabeçalho
         data = [list(map(int, row)) for row in reader]
     return data
 
@@ -20,35 +26,41 @@ def search_sequences(sequences, search_numbers):
     results.sort(key=lambda x: x[1], reverse=True)
     return results
 
+def color_sequence(sequence, search_set):
+    return [
+        f"{Fore.GREEN}{num}{Style.RESET_ALL}" if num in search_set else str(num)
+        for num in sequence
+    ]
+
 def main(arg_out_number, arg_out_file, arg_out_search: str):
     """
     arg_out_number: Número mínimo de acertos para exibir a sequência
-    arg_out_file: "C:\\Users\\vitim\\tutorial\\resultado_mega.csv"
-        description: Caminho do arquivo CSV com as sequências
-    arg_out_search: "3,9,18,54,59,60"
-        description: Números a serem pesquisados nas sequências
+    arg_out_file: Caminho do arquivo CSV com as sequências
+    arg_out_search: Números a serem pesquisados nas sequências
     """
-    file_path = arg_out_file
+    # Lê os números de busca e as sequências do arquivo CSV
     search_numbers = list(map(int, arg_out_search.split(",")))
-    sequences = read_csv(file_path)[1:] # Ignora o cabeçalho
+    search_set = set(search_numbers)
+    sequences = read_csv(arg_out_file)
+
+    # Busca as sequências com acertos
     results = search_sequences(sequences, search_numbers)
 
-    start_win_number =  0
-    if len(search_numbers ) == 6:
-           start_win_number = 3 
-    elif len(search_numbers ) == 15:
-        start_win_number = 11
-    count = Counter([match_count for _, match_count in results if match_count >= 3])
+    # Contadores de acertos
+    count = Counter([match_count for _, match_count in results if match_count >= arg_out_number])
     count_2 = Counter([match_count for _, match_count in results if match_count > 1])
-    for seq, match_count in results:
-        if match_count >= arg_out_number:
-            print(f"( {sum(seq)} ) Sequência: {seq} - Contagem de Acertos: {match_count}")
-            continue
 
-    print(f"\nTotal de sequências com acertos: \t{count.__str__()}")
-    print(f"Total de sequências com acertos de tudo: \t{count_2.__str__()}\n")
+    print("\nResultados encontrados:")
+    for seq, match_count in results:
+        num_acertos = 3 if len(search_numbers) else 10
+        if match_count >= num_acertos:
+            colored_seq = color_sequence(seq, search_set)
+            print(f"(Soma: {sum(seq)}) Sequência: {', '.join(colored_seq)} - Acertos: {match_count}")
+
+    print(f"\nTotal de sequências com pelo menos {arg_out_number} acertos: {count}")
+    print(f"Total de sequências com mais de 1 acerto: {count_2}\n")
 
 if __name__ == "__main__":
-    os.system('cls' if os.name == 'nt' else 'clear')
-    resultados_gerados_por_ia = "resultado.csv"
-    main(6, resultados_gerados_por_ia, "2,11,21,30,35,52")
+    #os.system('cls' if os.name == 'nt' else 'clear')  # Limpa o terminal
+    resultados_gerados_por_ia = "Mega-Sena.csv"  # Nome do arquivo CSV
+    main(6, resultados_gerados_por_ia, "2,4,15,28,34,39")
