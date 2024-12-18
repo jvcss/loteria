@@ -1,3 +1,6 @@
+import 'package:csv/csv.dart';
+import 'package:loter_ia/fetch_sheet_data.dart';
+
 const PRIZE_4 = 1070.51;
 const PRIZE_5 = 42563.82;
 const PRIZE_6 = 16000000.00;
@@ -99,6 +102,7 @@ List<Map<String, dynamic>> calculateEachTotalPrize(
 Future<List<Map<String, dynamic>>> fetchSheetData(String sheetUrl) async {
   try {
     // Faz o request para a URL pública do CSV
+    var http;
     final response = await http.get(Uri.parse(sheetUrl));
 
     if (response.statusCode == 200) {
@@ -124,23 +128,9 @@ Future<List<Map<String, dynamic>>> fetchSheetData(String sheetUrl) async {
   }
 }
 
-Future<List<Map<String, dynamic>>> oficialResults() async {
-  const String sheetUrl =
-      'https://docs.google.com/spreadsheets/d/1YW0Va7hO00TVgoE_i9Yqj3N5Ex3kl1ZHeZJB_3Xsmk4/export?format=csv';
-  // Busca e processa os dados
-  List<Map<String, dynamic>> sheetData = await fetchSheetData(sheetUrl);
-  List<Map<String, dynamic>> officialResults = sheetData.map((row) {
-    return {
-      'Date': row['Date'],
-      'Bola1': int.parse(row['Bola1']),
-      'Bola2': int.parse(row['Bola2']),
-      'Bola3': int.parse(row['Bola3']),
-      'Bola4': int.parse(row['Bola4']),
-      'Bola5': int.parse(row['Bola5']),
-      'Bola6': int.parse(row['Bola6']),
-    };
-  }).toList();
-  // Dados de resultados oficiais
+Future<List<Map<String, dynamic>>> main() async {
+   
+   List<Map<String, dynamic>> officialResults = await resultadosOficiais();
 
   // Dados fictícios de resultados gerados
   List<Map<String, dynamic>> generatedResults = [
