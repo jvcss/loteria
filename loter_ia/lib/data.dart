@@ -1,4 +1,4 @@
-List<List<int>> bolas = [
+List<List<int>> bolasPremiadas = [
   [7, 25, 8, 23, 36, 46, 54],
   [6, 20, 7, 39, 47, 51, 52],
   [7, 49, 8, 23, 36, 46, 54],

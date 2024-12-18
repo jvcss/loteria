@@ -7,18 +7,10 @@ class ChartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Testando calculateHitsWithPrizes
-    final officialResults, generatedResults, hitsWithPrizes = chartActivity();
+    // Exemplo de dados
+    final List<double> totalPrizes = [5000000, 10000000, 7500000, 6000000, 8500000];
+    final List<String> dates = ['2024-12-01', '2024-12-02', '2024-12-03', '2024-12-04', '2024-12-05'];
 
-    // Testando calculateFrequency
-    List<Map<String, dynamic>> frequency = calculateFrequency(hitsWithPrizes);
-    print('\nFrequency:');
-    frequency.forEach((freq) => print(freq));
-    // Testando calculateEachTotalPrize
-    List<Map<String, dynamic>> totalPrizes = calculateEachTotalPrize(frequency);
-    print('\nTotal Prizes:');
-    totalPrizes.forEach((prize) => print(prize));
-    print('\n\n\n\n\n\n\n\n:');
 
     return Scaffold(
       appBar: AppBar(title: const Text('Gráfico Customizado')),
