@@ -44,8 +44,9 @@ class CustomLineChart extends StatelessWidget {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   int index = value.toInt();
-                  if (index < 0 || index >= dates.length)
+                  if (index < 0 || index >= dates.length) {
                     return const SizedBox();
+                  }
                   return Transform.rotate(
                     angle: -0.5, // Inclina o texto no eixo X
                     child: Text(
