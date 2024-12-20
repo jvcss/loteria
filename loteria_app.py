@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import time  # Para simular o delay de upload
+from values import mega_sena, resultados_gerados_ia
 
 prize_data = {
     "premio_4": 961.50,  # Valor do prêmio para 4 acertos
@@ -104,32 +105,31 @@ def main():
     st.sidebar.title("Dados da Loteria")
 
     st.sidebar.subheader("Upload de Dados")
-     # ! vamos preencher essa variavel com o MegaSena.csv que temos na raiz do servidor
+     # vamos preencher essa variavel com o MegaSena.csv que temos na raiz do servidor
     official_file = st.sidebar.file_uploader("Resultados Oficiais (CSV)", type="csv")
 
-    # ! vamos preencher essa variavel com o resultado_mega.csv que temos na raiz do servidor
+    # vamos preencher essa variavel com o resultado_mega.csv que temos na raiz do servidor
     generated_file = st.sidebar.file_uploader("Resultados Gerados pela IA (CSV)", type="csv")
-    
-    # Caminho dos arquivos locais
-    official_file_path = "Mega-Sena.csv"
-    generated_file_path = "resultado_modificado.csv"
 
-    # Simulando o upload dos arquivos locais
-    official_file = simulate_file_upload(official_file_path)
-    generated_file = simulate_file_upload(generated_file_path)
+    # Inicialização das variáveis para quando os arquivos não forem carregados
+    if official_file is None:
+        official_df = pd.DataFrame(mega_sena, columns=[f"Bola{i}" for i in range(1, 7)])
+    else:
+        # Caso o usuário tenha carregado um arquivo, lê-lo
+        official_df = pd.read_csv(official_file)
+
+    if generated_file is None:
+        generated_df = pd.DataFrame(resultados_gerados_ia, columns=[f"Bola{i}" for i in range(1, 7)])
+    else:
+        # Caso o usuário tenha carregado um arquivo, lê-lo
+        generated_df = pd.read_csv(generated_file)
 
     # Exibindo a animação enquanto o processamento acontece
     with st.spinner("Processando arquivos, aguarde..."):
-        time.sleep(2)  # Simula o tempo de upload
-
-        # Carregar os dados dos arquivos
-        official_df = load_data(official_file)
-        generated_df = load_data(generated_file)
         try:
             validate_data(official_df, generated_df)
         except ValueError as e:
             st.error(f"Erro nos dados: {e}")
-
 
         # Cálculo de acertos
         st.subheader("Análise de Performance")
@@ -147,14 +147,12 @@ def main():
             "A análise acima demonstra como as combinações geradas pela IA se comparam com os resultados oficiais."
         )
 
-                # Exibe os dados carregados
+        # Exibe os dados carregados
         st.header("Dados Carregados")
         st.subheader("Resultados Oficiais")
         st.write(official_df.head())  # Exibe as primeiras linhas do arquivo oficial
         st.subheader("Resultados Gerados pela IA")
         st.write(generated_df.head())  # Exibe as primeiras linhas do arquivo gerado pela IA
-        
-
 
 if __name__ == "__main__":
     # Configure the page
