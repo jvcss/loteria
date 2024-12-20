@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_typing_uninitialized_variables
+
 import 'package:csv/csv.dart';
 import 'package:loter_ia/fetch_sheet_data.dart';
 

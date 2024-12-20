@@ -50,7 +50,7 @@ class _ImageIconButtonState extends State<ImageIconButton> {
 
 void main() {
   runApp(
-    MaterialApp(
+    const MaterialApp(
       home: Scaffold(
         body: Center(
           child: ImageIconButton(

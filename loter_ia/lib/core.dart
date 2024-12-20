@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_function_literals_in_foreach_calls
+
 import 'package:loter_ia/fetch_sheet_data.dart';
 
 List<Map<String, dynamic>> calculateHitsWithPrizes(

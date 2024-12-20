@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_function_literals_in_foreach_calls
+
 List<Map<String, dynamic>> calculateHitsWithPrizes(
   List<Map<String, dynamic>> officialResults,
   List<Map<String, dynamic>> generatedResults,

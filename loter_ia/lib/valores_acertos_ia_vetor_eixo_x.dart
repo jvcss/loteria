@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, prefer_typing_uninitialized_variables
 
 //import 'package:cloud_firestore/cloud_firestore.dart'; // Import necessário para Firestore
 

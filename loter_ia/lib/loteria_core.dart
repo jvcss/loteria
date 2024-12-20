@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_function_literals_in_foreach_calls
+
 import 'package:http/http.dart' as http;
 import 'package:csv/csv.dart';
 import 'dart:convert'; // Necessário para utf8.decode
