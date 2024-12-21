@@ -2,7 +2,7 @@ import io
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import time  # Para simular o delay de upload
+import time  # Para o delay de upload
 from values import mega_sena, resultados_gerados_ia
 
 prize_data = {
@@ -14,9 +14,9 @@ prize_data = {
 def load_data(file):
     return pd.read_csv(file)
 
-# Função para simular o upload de arquivos
-def simulate_file_upload(file_path):
-    """Simula o upload de um arquivo local para o file_uploader."""
+# Função para o upload de arquivos
+def file_upload(file_path):
+    """upload de um arquivo local para o file_uploader."""
     with open(file_path, "rb") as f:
         return io.BytesIO(f.read())
 
@@ -74,11 +74,11 @@ def plot_accuracy_distribution(results_df):
         results_df["Acertos5"] * 5 + 
         results_df["Acertos6"] * 6
     )
-    
+
     # Criar a contagem de frequência
     accuracy_summary = results_df["Acertos"].value_counts().reset_index()
     accuracy_summary.columns = ["Número de Acertos", "Frequência"]
-    
+
     # Criar o gráfico
     return px.bar(
         accuracy_summary,
@@ -106,10 +106,15 @@ def main():
 
     st.sidebar.subheader("Upload de Dados")
      # vamos preencher essa variavel com o MegaSena.csv que temos na raiz do servidor
-    official_file = st.sidebar.file_uploader("Resultados Oficiais (CSV)", type="csv")
+    official_file = st.sidebar.file_uploader("Resultados Oficiais (CSV) [já inserido]", type="csv", )
 
     # vamos preencher essa variavel com o resultado_mega.csv que temos na raiz do servidor
-    generated_file = st.sidebar.file_uploader("Resultados Gerados pela IA (CSV)", type="csv")
+    generated_file = st.sidebar.file_uploader("Resultados Gerados pela IA (CSV) [já inserido]", type="csv")
+
+    st.sidebar.subheader("Prêmios Estimados")
+    prize_data["premio_4"] = st.sidebar.number_input("Prêmio para Quadra", value=prize_data["premio_4"])
+    prize_data["premio_5"] = st.sidebar.number_input("Prêmio para Quina", value=prize_data["premio_5"])
+    prize_data["premio_6"] = st.sidebar.number_input("Prêmio para Sena", value=prize_data["premio_6"])
 
     # Inicialização das variáveis para quando os arquivos não forem carregados
     if official_file is None:
@@ -153,6 +158,7 @@ def main():
         st.write(official_df.head())  # Exibe as primeiras linhas do arquivo oficial
         st.subheader("Resultados Gerados pela IA")
         st.write(generated_df.head())  # Exibe as primeiras linhas do arquivo gerado pela IA
+        st.write("Contagem de linhas do arquivo gerado pela IA:", generated_df.shape[0])
 
 if __name__ == "__main__":
     # Configure the page
