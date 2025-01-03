@@ -5,6 +5,7 @@ import plotly.express as px
 import time  # Para o delay de upload
 from values import mega_sena, resultados_gerados_ia
 
+
 prize_data = {
     "premio_4": 961.50,  # Valor do prêmio para 4 acertos
     "premio_5": 41501.26,  # Valor do prêmio para 5 acertos
@@ -104,6 +105,8 @@ def main():
     st.title("Análise de Performance de IA em Loterias")
     st.sidebar.title("Dados da Loteria")
 
+    
+
     st.sidebar.subheader("Upload de Dados")
      # vamos preencher essa variavel com o MegaSena.csv que temos na raiz do servidor
     official_file = st.sidebar.file_uploader("Resultados Oficiais (CSV) [já inserido]", type="csv", )
@@ -168,4 +171,5 @@ if __name__ == "__main__":
         layout="wide",
         initial_sidebar_state="collapsed"  # Options: 'expanded', 'collapsed', 'auto'
     )
+    st.markdown("""<script>document.querySelectorAll('[data-testid=stToolbar]')[0].remove();</script>""", unsafe_allow_html=True)
     main()
