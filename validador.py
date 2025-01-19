@@ -96,7 +96,7 @@ if __name__ == "__main__":
     training_data = "training_data.csv"
     evaluation_data = "evaluation_data.csv"
 
-    todos_resultados = main(6, res, "2,4,15,28,34,39",)
+    todos_resultados = main(6, res, "8,27,36,37,39,45",)
 
     #plot_acertos_por_categoria(todos_resultados, title="Distribuição de Acertos")
 
