@@ -24,12 +24,12 @@ predictions = model.predict(evaluation_data)
 # Filtra e salva os resultados em um arquivo
 with open("resultado.csv", "w") as file:
     for prediction in predictions:
-        if prediction not in training_data_a:
+        #if prediction not in training_data_a:
             file.write(f"{prediction}\n")
 
 # Exibe um valor aleatório das predições
-print(predictions[np.random.choice(len(predictions))])
-
+#print(predictions[np.random.choice(len(predictions))])
+#print("Precisão na validação:", acc if acc is not None else "N/A")
 print("__________________")
 
 # Verifica e exibe valores que atendem à condição

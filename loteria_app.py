@@ -23,10 +23,10 @@ def file_upload(file_path):
 
 def validate_data(official_df, generated_df):
     """Valida o formato das tabelas carregadas."""
-    required_columns_official = {f"Bola{i}" for i in range(1, 7)}
+    required_columns_official = {f"Bola{i}" for i in range(1, 6)}
     if not required_columns_official.issubset(official_df.columns):
-        raise ValueError("Arquivo oficial deve conter as colunas Bola1 a Bola6.")
-    if generated_df.shape[1] != 6:
+        raise ValueError("Arquivo oficial deve conter as colunas Bola1 a Bola5.")
+    if generated_df.shape[1] != 5:
         raise ValueError("Arquivo gerado pela IA deve conter exatamente 6 colunas.")
 
 def calculate_hits_with_prizes(official_df, generated_df, prize_data):

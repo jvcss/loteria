@@ -73,7 +73,7 @@ def main(arg_out_number, arg_out_file, arg_out_search: str):
     count_2 = Counter([match_count for _, match_count in results if match_count > 1])
 
     print("\nResultados encontrados:")
-    num_acertos = 3 if len(search_numbers) else 10
+    num_acertos = 2 if len(search_numbers) else 10
     for seq, match_count in results:
         
         if match_count >= num_acertos:
@@ -89,14 +89,14 @@ def main(arg_out_number, arg_out_file, arg_out_search: str):
 
 if __name__ == "__main__":
     #os.system('cls' if os.name == 'nt' else 'clear')  # Limpa o terminal
-    res = "resultado.csv"
+    res = "resultados.csv"
     result = "resultado_modificado.csv"
     mega = "Mega-Sena.csv"
     resultados_gerados_por_ia = "resultado_modificado.csv"  # Nome do arquivo CSV
     training_data = "training_data.csv"
     evaluation_data = "evaluation_data.csv"
 
-    todos_resultados = main(6, res, "8,27,36,37,39,45",)
+    todos_resultados = main(6, res, "21,38,60,64,70",)
 
     #plot_acertos_por_categoria(todos_resultados, title="Distribuição de Acertos")
 
