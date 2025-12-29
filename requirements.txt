@@ -2,3 +2,8 @@ streamlit
 plotly
 pandas
 babel
+numpy
+scikit-learn
+matplotlib
+graphviz
+seaborn
